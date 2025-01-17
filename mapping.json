@@ -1,0 +1,94 @@
+{
+  "personMappings": [
+    {
+      "name": "ExternalId",
+      "mode": "field",
+      "value": "ExternalId",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Name.FamilyName",
+      "mode": "field",
+      "value": "LastName",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "name": "Name.NickName",
+      "mode": "field",
+      "value": "FirstName",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "name": "UserName",
+      "mode": "field",
+      "value": "DisplayName",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Contact.Business.Email",
+      "mode": "field",
+      "value": "Email",
+      "validation": {
+        "required": false
+      }
+    }
+  ],
+  "contractMappings": [
+    {
+      "name": "CostCenter.Code",
+      "mode": "field",
+      "value": "dptCode",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "CostCenter.ExternalId",
+      "mode": "field",
+      "value": "dptId",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "CostCenter.Name",
+      "mode": "field",
+      "value": "dptCcr",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "EndDate",
+      "mode": "field",
+      "value": "endAt",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "ExternalId",
+      "mode": "field",
+      "value": "externalId",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "StartDate",
+      "mode": "field",
+      "value": "startAt",
+      "validation": {
+        "required": false
+      }
+    }
+  ]
+}
