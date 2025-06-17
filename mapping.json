@@ -17,23 +17,6 @@
       }
     },
     {
-      "name": "Custom.Source",
-      "mode": "fixed",
-      "value": "OrtecWS",
-      "validation": {
-        "required": true
-      },
-      "convertToString": true
-    },
-    {
-      "name": "Excluded",
-      "mode": "fixed",
-      "value": true,
-      "validation": {
-        "required": true
-      }
-    },
-    {
       "name": "ExternalId",
       "mode": "field",
       "value": "ExternalId",
@@ -90,24 +73,6 @@
       "validation": {
         "required": false
       }
-    },
-    {
-      "name": "Custom.NedapOnsIdentificationNo",
-      "mode": "complex",
-      "value": "function getNedapOnsIdentifactionNo() {\r\n    return source.ExternalId + '-' + sourceContract.employment;\r\n}\r\ngetNedapOnsIdentifactionNo();",
-      "validation": {
-        "required": false
-      },
-      "convertToString": true
-    },
-    {
-      "name": "Custom.Source",
-      "mode": "fixed",
-      "value": "OrtecWS",
-      "validation": {
-        "required": true
-      },
-      "convertToString": true
     },
     {
       "name": "Department.DisplayName",
