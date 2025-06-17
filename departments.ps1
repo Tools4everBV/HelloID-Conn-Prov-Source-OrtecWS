@@ -7,6 +7,9 @@
 # Initialize default values
 $config = $configuration | ConvertFrom-Json
 
+# Set TLS to accept TLS, TLS 1.1 and TLS 1.2
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
+
 #region functions
 function Resolve-OrtecWSError {
     [CmdletBinding()]
