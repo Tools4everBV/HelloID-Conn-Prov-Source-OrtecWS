@@ -1,6 +1,39 @@
 {
   "personMappings": [
     {
+      "name": "Aggregation",
+      "mode": "complex",
+      "value": "/* This value is used for automatic person aggregation (if enabled) to suggest aggregation of persons based on similar aggregation values.\r\n* The value will be converted to upper case and all white-spaces and special characters, except single quotes, will be removed.\r\n* This field is limited to 200 characters, empty or null values will exclude the person from suggestions.\r\n*/\r\n// Set to externalId\r\nfunction getAggregationValue() {\r\n    let aggregationValue = 'XXXXX' + source.ExternalId + 'XXXXX';\r\n\r\n    return aggregationValue;\r\n}\r\n\r\ngetAggregationValue();",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Contact.Business.Email",
+      "mode": "field",
+      "value": "Email",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Custom.Source",
+      "mode": "fixed",
+      "value": "OrtecWS",
+      "validation": {
+        "required": true
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Excluded",
+      "mode": "fixed",
+      "value": true,
+      "validation": {
+        "required": true
+      }
+    },
+    {
       "name": "ExternalId",
       "mode": "field",
       "value": "ExternalId",
@@ -28,14 +61,6 @@
       "name": "UserName",
       "mode": "field",
       "value": "DisplayName",
-      "validation": {
-        "required": false
-      }
-    },
-    {
-      "name": "Contact.Business.Email",
-      "mode": "field",
-      "value": "Email",
       "validation": {
         "required": false
       }
@@ -67,6 +92,40 @@
       }
     },
     {
+      "name": "Custom.NedapOnsIdentificationNo",
+      "mode": "complex",
+      "value": "function getNedapOnsIdentifactionNo() {\r\n    return source.ExternalId + '-' + sourceContract.employment;\r\n}\r\ngetNedapOnsIdentifactionNo();",
+      "validation": {
+        "required": false
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Custom.Source",
+      "mode": "fixed",
+      "value": "OrtecWS",
+      "validation": {
+        "required": true
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Department.DisplayName",
+      "mode": "field",
+      "value": "dptCode",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "name": "Department.ExternalId",
+      "mode": "field",
+      "value": "dptCode",
+      "validation": {
+        "required": true
+      }
+    },
+    {
       "name": "EndDate",
       "mode": "field",
       "value": "endAt",
@@ -86,6 +145,30 @@
       "name": "StartDate",
       "mode": "field",
       "value": "startAt",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Title.Code",
+      "mode": "field",
+      "value": "functionId",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Title.ExternalId",
+      "mode": "field",
+      "value": "functionId",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Title.Name",
+      "mode": "field",
+      "value": "function",
       "validation": {
         "required": false
       }
