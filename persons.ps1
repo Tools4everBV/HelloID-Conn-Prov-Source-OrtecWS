@@ -197,10 +197,7 @@ try {
     # Set counter to keep track of actual exported person objects
     $exportedPersons = 0
 
-    #region Custom - 2025/06/10 - RS - Changed to filter out persons where externalid starts with 'E' (these are already provided by Elanza)
-    # foreach ($employee in $groupedEmployees) {
-    foreach ($employee in ($groupedEmployees | Where-Object { $_.Group.EmpNum -notlike "E*" })) {
-        #endregion
+    foreach ($employee in $groupedEmployees) {
         # Get the shifts for the current employee
         $actionMessage = "retrieving shifts for employee $($employee.Group.EmpNum) with RSE ID: $($employee.Group.RseId)"
 

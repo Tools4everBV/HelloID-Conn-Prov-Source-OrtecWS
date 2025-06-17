@@ -30,16 +30,29 @@ _HelloID-Conn-Prov-Source-OrtecWS_ is a _source_ connector. It imports _employee
 
 ### Requirements
 
-- You must request API access from **Ortec**. They are responsible for:
-  - Enabling the API for your environment.
-  - Supplying the **Base URL**, **Server Name**, **API Key**, **API Username**, and **API Password**.
+- This connector requires an **on-premise HelloID Agent** to be installed and running.
+- The **IP addresses of the HelloID Agent server must be whitelisted by Ortec**. Please contact Ortec support to arrange this.
 
+- **API access must be requested from Ortec**. They are responsible for configuring the SOAP API and providing the following connection details:
+  - **Base URL**: The base URL of the OrtecWS SOAP API (e.g., `https://t4e-weu-soapsvc1-p.ortec-hosting.com`)
+  - **Server Name**: The name of the server used in the SOAP endpoint path (e.g., `T4E_WEU_OWS_P`)
+  - **API Key**: A pre-shared key (PSK) used to authenticate SOAP requests
+  - **API Username** and **API Password**: Credentials required to authenticate with the OrtecWS API
 
-- The connector expects two additional settings:
-  - `HistoricalDays`: Number of days in the past from which shift data will be imported.
-    - Max allowed by Ortec is 2 days. If you need a wider window, you’ll have to request it from them.
-  - `FutureDays`: Number of days in the future from which shift data will be imported.
-    - Max allowed by Ortec is 7 days. You can also request a change via Ortec.
+- The connector requires two configuration settings to define the import window for shift data:
+  - `HistoricalDays`: The number of days in the past from which shifts should be imported.
+    - The Ortec API supports a maximum of **2 historical days**. Contact Ortec if you require a larger window.
+  - `FutureDays`: The number of days in the future from which shifts should be imported.
+    - The Ortec API supports a maximum of **7 future days**. Contact Ortec if you require a larger window.
+
+- **Ensure Aggregation Values Match Between Sources**
+  - The OrtecWS source connector is not a full source. Its purpose is to **aggregate to the existing HR source** with employee shift data. This happens through **aggregation based on the `ExternalId`** of the primary source. Make sure the **aggregation value in the primary source matches the aggregation value in OrtecWS**, otherwise shift data won’t link correctly to the person.
+
+- **Verify department codes in OrtecWS correspond to the codes used in the primary HR source** 
+  - Often, OrtecWS uses the short code (shortName) instead of the internal ID.
+  - For Beaufort, use the shortName in the departments script and mapping, not the ID.
+  - Confirm codes match on both sides to avoid breaking business rules or dynamic/sub permissions.
+
 
 ### Connection settings
 
@@ -55,9 +68,26 @@ _HelloID-Conn-Prov-Source-OrtecWS_ is a _source_ connector. It imports _employee
 
 ## Remarks
 
-- The connector uses a SOAP 1.2 request to retrieve employee and shift data.
-- The API enforces a time window of **-2 to +7 days**. Requests outside this range are automatically adjusted. This is the maximum supported range by Ortec. Contact Ortec if you need to widen this.
-- Employees may appear multiple times if they hold multiple _dienstverbanden_ (employments). Each unique employment has a separate `empCon`. The connector merges these into a single record with a comma-separated list of `empCon` values.
+**Soap XML**  
+The connector makes use of an xml soap request to retrieve the data that is necessary for the connector.
+
+**Time Window Restrictions**  
+The API enforces a time window of **-2 to +7 days**. Requests outside this range are automatically adjusted. This is the maximum supported range by Ortec. Contact Ortec if you need to widen this.
+
+**Multiple Employments**  
+Employees may appear multiple times if they hold multiple _dienstverbanden_ (employments). Each unique employment has a separate `empCon`. The connector merges these into a single record with a comma-separated list of `empCon` values.
+
+**Aggregation Value**  
+The connector uses a custom `Aggregation` value to support automatic person linking in HelloID:  
+By default, the `Aggregation` value is based on the `ExternalId` from the OrtecWS data.
+  - This value is prefixed and suffixed with `'XXXXX'`.  
+  This pattern helps avoid accidental matches when `ExternalId` values are partially similar across sources.
+
+**Department Codes in OrtecWS**  
+The department code used in OrtecWS is often the short code (shortName) of a department from the primary source system, not the internal ID. The internal ID usually exists only in the primary system.  
+For example, when using Beaufort as the primary system, the short code must be used in the departments script and mapping instead of the ID.  
+This may differ per primary source system, but the key is that the codes match on both sides to ensure existing business rules and any dynamic/sub permissions keep working without changes. This is usually desired but may vary per client.
+
 
 ### Logic in-depth
 

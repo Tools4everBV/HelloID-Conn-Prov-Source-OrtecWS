@@ -1,74 +1,74 @@
 [
-  {
-    "key": "BaseUrl",
-    "type": "input",
-    "defaultValue": "",
-    "templateOptions": {
-      "label": "Base URL",
-      "description": "The base URL of the OrtecWS API (e.g., : https://t4e-weu-soapsvc1-p.ortec-hosting.com).",
-      "required": true
+    {
+        "key": "BaseUrl",
+        "type": "input",
+        "defaultValue": "",
+        "templateOptions": {
+            "label": "Base URL",
+            "description": "The base URL of the OrtecWS API (e.g., : https://t4e-weu-soapsvc1-p.ortec-hosting.com).",
+            "required": true
+        }
+    },
+    {
+        "key": "ServerName",
+        "type": "input",
+        "defaultValue": "",
+        "templateOptions": {
+            "label": "Server Name",
+            "description": "The name of the Ortec server used in the SOAP endpoint path (e.g., : T4E_WEU_OWS_P).",
+            "required": true
+        }
+    },
+    {
+        "key": "Apikey",
+        "type": "input",
+        "defaultValue": "",
+        "templateOptions": {
+            "type": "password",
+            "label": "API Key",
+            "description": "The pre-shared key (PSK) used to authenticate SOAP requests to the OrtecWS API.",
+            "required": true
+        }
+    },
+    {
+        "key": "ApiUsername",
+        "type": "input",
+        "defaultValue": "",
+        "templateOptions": {
+            "label": "API Username",
+            "description": "The username used for authenticating with the OrtecWS API (e.g., : ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P).",
+            "required": true
+        }
+    },
+    {
+        "key": "ApiPassword",
+        "type": "input",
+        "defaultValue": "",
+        "templateOptions": {
+            "type": "password",
+            "label": "API Password",
+            "description": "The password associated with the API username.",
+            "required": true
+        }
+    },
+    {
+        "key": "HistoricalDays",
+        "type": "input",
+        "defaultValue": "2",
+        "templateOptions": {
+            "label": "Historical Days",
+            "description": "The number of days in the past from which to import shift data. The maximum allowed by the API is 2 days. Contact Ortec if a larger window is required.",
+            "required": true
+        }
+    },
+    {
+        "key": "FutureDays",
+        "type": "input",
+        "defaultValue": "7",
+        "templateOptions": {
+            "label": "Future Days",
+            "description": "The number of days in the future for which to import shift data. The maximum allowed by the API is 7 days. Contact Ortec if a larger window is required.",
+            "required": true
+        }
     }
-  },
-  {
-    "key": "ServerName",
-    "type": "input",
-    "defaultValue": "",
-    "templateOptions": {
-      "label": "Server Name",
-      "description": "The name of the Ortec server used in the SOAP endpoint path (e.g., : T4E_WEU_OWS_P).",
-      "required": true
-    }
-  },
-  {
-    "key": "Apikey",
-    "type": "input",
-    "defaultValue": "",
-    "templateOptions": {
-      "type": "password",
-      "label": "API Key",
-      "description": "The pre-shared key (PSK) used to authenticate SOAP requests to the OrtecWS API.",
-      "required": true
-    }
-  },
-  {
-    "key": "ApiUsername",
-    "type": "input",
-    "defaultValue": "",
-    "templateOptions": {
-      "label": "API Username",
-      "description": "The username used for authenticating with the OrtecWS API (e.g., : ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P).",
-      "required": true
-    }
-  },
-  {
-    "key": "ApiPassword",
-    "type": "input",
-    "defaultValue": "",
-    "templateOptions": {
-      "type": "password",
-      "label": "API Password",
-      "description": "The password associated with the API username.",
-      "required": true
-    }
-  },
-  {
-    "key": "HistoricalDays",
-    "type": "input",
-    "defaultValue": "2",
-    "templateOptions": {
-      "label": "Historical Days",
-      "description": "The number of days in the past from which to import shift data. The maximum allowed by the API is 2 days. Contact Ortec if a larger window is required.",
-      "required": true
-    }
-  },
-  {
-    "key": "FutureDays",
-    "type": "input",
-    "defaultValue": "7",
-    "templateOptions": {
-      "label": "Future Days",
-      "description": "The number of days in the future for which to import shift data. The maximum allowed by the API is 7 days. Contact Ortec if a larger window is required.",
-      "required": true
-    }
-  }
 ]
