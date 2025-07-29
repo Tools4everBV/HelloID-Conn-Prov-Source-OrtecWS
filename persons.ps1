@@ -1,7 +1,7 @@
 ########################################################################
 # HelloID-Conn-Prov-Source-OrtecWS-Persons
 #
-# Version: 1.0.1
+# Version: 1.0.2
 ########################################################################
 
 # Initialize default values
@@ -156,7 +156,7 @@ try {
     # Extract employees from the response
     $actionMessage = "extracting employees from employee data"
 
-    $employees = $response.XML.employees.employee | ForEach-Object {
+    $employees = $response.XML.employees.employee | ForEach-Object {        
         [PSCustomObject]@{
             RseId        = $_.rse_id
             EmpNum       = $_.empNum
@@ -164,7 +164,8 @@ try {
             EmpSurname   = $_.empSurname
             EmpFirstname = $_.empFirstname
             EmpEmail     = $_.empEmail
-            PosEmp       = $_.empPositions.empPosition.posEmp
+            PosEmpName   = $_.empPositions.empPosition.posEmpName
+            PosEmpCode   = $_.empPositions.empPosition.posEmpCode
             PosEmpId     = $_.empPositions.empPosition.posEmpId
         }
     }
@@ -176,12 +177,15 @@ try {
     # Extract shifts from the response
     $actionMessage = "extracting shifts from shift data"
 
-    $shifts = $response.XML.shifts.shift | ForEach-Object {
+    $shifts = $response.XML.shifts.shift | ForEach-Object {        
         [PSCustomObject]@{
             RseId       = $_.rse_id
             DptId       = $_.dptId
             DptCode     = $_.dptCode
-            DptCcr      = $_.dptCcr
+            DptName     = $_.dptName
+            DptCcrId    = $_.DptCcrId
+            DptCcrCode  = $_.DptCcrCode
+            DptCcrName  = $_.DptCcrName
             ShtId       = $_.shtId
             ShtName     = $_.shtName
             ShtFrom     = $_.shtFrom
@@ -205,28 +209,32 @@ try {
         $actionMessage = "retrieving shifts for employee $($employee.Group.EmpNum) with RSE ID: $($employee.Group.RseId)"
 
         $employeeShifts = $shifts | Where-Object { $_.RseId -eq $employee.Group.RseId }
-
+        
         $contracts = [System.Collections.Generic.List[object]]::new()
         # Create a contract for each shift
-        foreach ($shift in $employeeShifts) {
+        foreach ($shift in $employeeShifts) {            
             $ShiftContract = @{
-                externalId  = "$($shift.ShtId)_$($shift.SklShiftId)"
-                dptCode     = $shift.DptCode
-                dptCcr      = $shift.DptCcr
-                dptId       = $shift.DptId
-                shtId       = $shift.ShtId
-                shtName     = $shift.ShtName
-                sklShift    = $shift.SklShift
-                sklShiftId  = $shift.SklShiftId
-                sklLvlShift = $shift.SklLvlShift
-                employment  = $employee.Group.EmpCon
-                function    = $employee.Group.PosEmp
-                functionId  = $employee.Group.PosEmpId
+                externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
+                dptId          = $shift.DptId
+                dptCode        = $shift.DptCode
+                dptName        = $shift.DptName
+                dptCcrId       = $shift.DptCcrId
+                dptCcrCode     = $shift.DptCcrCode
+                dptCcrIdName   = $shift.DptCcrName
+                shtId          = $shift.ShtId
+                shtName        = $shift.ShtName
+                sklShift       = $shift.SklShift
+                sklShiftId     = $shift.SklShiftId
+                sklLvlShift    = $shift.SklLvlShift
+                employment     = $employee.Group.EmpCon
+                functionId     = $employee.Group.PosEmpId      
+                functionCode   = $employee.Group.PosEmpCode  
+                functionName   = $employee.Group.PosEmpName
                 # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
                 # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
                 # to determine the start/end date, resulting in the contract marked as 'active'
-                startAt     = $shift.ShtFrom
-                endAt       = $shift.ShtUntil
+                startAt        = $shift.ShtFrom
+                endAt          = $shift.ShtUntil                
             }
             $contracts.Add($ShiftContract)
         }
@@ -234,15 +242,16 @@ try {
         # Only output the person object if there are contracts
         if ($contracts.Count -gt 0) {
             $personObj = [PSCustomObject]@{
-                ExternalId  = $employee.Group.EmpNum
+                ExternalId   = $employee.Group.EmpNum
                 DisplayName = "$($employee.Group.EmpFirstname) $($employee.Group.EmpSurname) ($($employee.Group.EmpNum))".Trim()
-                FirstName   = $employee.Group.EmpFirstname
+                FirstName    = $employee.Group.EmpFirstname
                 LastName    = $employee.Group.EmpSurname
-                Email       = $employee.Group.EmpEmail
-                function    = $employee.Group.PosEmp
-                functionId  = $employee.Group.PosEmpId
-                Employment  = $employee.Group.EmpCon -join ','
-                Contracts   = $contracts
+                Email        = $employee.Group.EmpEmail
+                function     = $employee.Group.PosEmpName
+                functionCode = $employee.Group.PosEmpCode
+                functionId   = $employee.Group.PosEmpId
+                Employment   = $employee.Group.EmpCon -join ','
+                Contracts    = $contracts
             }
 
             Write-Output ($personObj | ConvertTo-Json -Depth 20)

@@ -1,7 +1,7 @@
 ########################################################################
 # HelloID-Conn-Prov-Source-OrtecWS-Departments
 #
-# Version: 1.0.1
+# Version: 1.0.2
 ########################################################################
 
 # Initialize default values
@@ -160,7 +160,7 @@ try {
         [PSCustomObject]@{
             DptId   = $_.dptId
             DptCode = $_.dptCode
-            DptCcr  = $_.dptCcr
+            DptName  = $_.dptName
         }
     }
 
@@ -176,7 +176,7 @@ try {
     foreach ($dept in $uniqueDepartments) {
         $department = [PSCustomObject]@{
             ExternalId        = $dept.DptCode
-            DisplayName       = $dept.DptCode
+            DisplayName       = $dept.DptName
             ManagerExternalId = ""  # Not available in OrtecWS response
             ParentExternalId  = ""  # Not available in OrtecWS response
         }
