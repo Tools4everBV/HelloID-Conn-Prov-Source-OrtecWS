@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
+## [1.0.3] - 18-03-2026
+
+#### Changed
+
+- persons.ps1: Added support for multiple employments.
+- configuration.json: API username and password optional
+- readme.md: Changed requirements and removed reference to forum.
+
+
 ## [1.0.2] - 12-02-2025
 
 #### Changed
