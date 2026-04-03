@@ -1,7 +1,7 @@
 ########################################################################
 # HelloID-Conn-Prov-Source-OrtecWS-Departments
 #
-# Version: 1.0.2
+# Version: 1.0.3
 ########################################################################
 
 # Initialize default values
@@ -107,8 +107,8 @@ try {
     $xmlRequest = @"
 <?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
-               xmlns:cais="http://www.ortec.com/CAIS"
-               xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+        xmlns:cais="http://www.ortec.com/CAIS"
+        xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
     <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
         <wsa:Action>http://www.ortec.com/CAIS/IApplicationIntegrationService/SendMessage</wsa:Action>
         <wsa:ReplyTo>

@@ -38,6 +38,7 @@ _HelloID-Conn-Prov-Source-OrtecWS_ is a _source_ connector. It imports _employee
   - **Server Name**: The name of the server used in the SOAP endpoint path (e.g., `T4E_WEU_OWS_P`)
   - **API Key**: A pre-shared key (PSK) used to authenticate SOAP requests
   - **API Username** and **API Password**: Credentials required to authenticate with the OrtecWS API
+    - The API Username and API Password is in some cases not required. Ortec, the supplier, decides what to configure in the Ortec implementation.  
 
 - The connector requires two configuration settings to define the import window for shift data:
   - `HistoricalDays`: The number of days in the past from which shifts should be imported.
@@ -50,7 +51,7 @@ _HelloID-Conn-Prov-Source-OrtecWS_ is a _source_ connector. It imports _employee
 
 - **Verify department codes in OrtecWS correspond to the codes used in the primary HR source** 
   - Often, OrtecWS uses the short code (shortName) instead of the internal ID.
-  - For Beaufort, use the shortName in the departments script and mapping, not the ID.
+  - For Youforce, use the shortName in the departments script and mapping, not the ID.
   - Confirm codes match on both sides to avoid breaking business rules or dynamic/sub permissions.
 
 
@@ -61,8 +62,8 @@ _HelloID-Conn-Prov-Source-OrtecWS_ is a _source_ connector. It imports _employee
 | BaseUrl        | The base URL of the OrtecWS API. <br>_e.g., `https://t4e-weu-soapsvc1-p.ortec-hosting.com`_                          | Yes       |
 | ServerName     | The server name used in the SOAP endpoint path. <br>_e.g., `T4E_WEU_OWS_P`_                                          | Yes       |
 | ApiKey         | The pre-shared key (PSK) for authenticating SOAP requests.                                                           | Yes       |
-| ApiUsername    | The username for authenticating with the API. <br>_e.g., `ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P`_                      | Yes       |
-| ApiPassword    | The password associated with the API username.                                                                       | Yes       |
+| ApiUsername    | The username for authenticating with the API. <br>_e.g., `ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P`_                      | No       |
+| ApiPassword    | The password associated with the API username.                                                                       | No       |
 | HistoricalDays | Number of days in the past to include when fetching employments (e.g. 2 = current date minus 2 days). Max = 2 days.  | Yes       |
 | FutureDays     | Number of days in the future to include when fetching employments (e.g. 7 = current date plus 7 days). Max = 7 days. | Yes       |
 
@@ -113,8 +114,6 @@ The following SOAP endpoint is used:
 > [!NOTE]
 > _For more information on how to configure a HelloID PowerShell connector, please refer to our [documentation](https://docs.helloid.com/hc/en-us/articles/360012557600-Configure-a-custom-PowerShell-source-system) pages_
 
-> [!NOTE]
-> _If you need help, feel free to ask questions on our [forum](https://forum.helloid.com/forum/helloid-connectors/provisioning/5311-helloid-conn-prov-source-ortecws-persons)
 
 ## HelloID docs
 

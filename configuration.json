@@ -36,8 +36,8 @@
         "defaultValue": "",
         "templateOptions": {
             "label": "API Username",
-            "description": "The username used for authenticating with the OrtecWS API (e.g., : ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P).",
-            "required": true
+            "description": "Optional. The username used for authenticating with the OrtecWS API (e.g., : ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P).",
+            "required": false
         }
     },
     {
@@ -47,8 +47,8 @@
         "templateOptions": {
             "type": "password",
             "label": "API Password",
-            "description": "The password associated with the API username.",
-            "required": true
+            "description": "Optional. The password associated with the API username.",
+            "required": false
         }
     },
     {

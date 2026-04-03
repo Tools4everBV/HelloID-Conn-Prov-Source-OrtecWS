@@ -1,7 +1,7 @@
 ########################################################################
 # HelloID-Conn-Prov-Source-OrtecWS-Persons
 #
-# Version: 1.0.2
+# Version: 1.0.3
 ########################################################################
 
 # Initialize default values
@@ -106,9 +106,9 @@ try {
 
     $xmlRequest = @"
 <?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
-               xmlns:cais="http://www.ortec.com/CAIS"
-               xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+    <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
+        xmlns:cais="http://www.ortec.com/CAIS"
+        xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
     <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
         <wsa:Action>http://www.ortec.com/CAIS/IApplicationIntegrationService/SendMessage</wsa:Action>
         <wsa:ReplyTo>
@@ -156,7 +156,7 @@ try {
     # Extract employees from the response
     $actionMessage = "extracting employees from employee data"
 
-    $employees = $response.XML.employees.employee | ForEach-Object {        
+    $employees = $response.XML.employees.employee | ForEach-Object {         
         [PSCustomObject]@{
             RseId        = $_.rse_id
             EmpNum       = $_.empNum
@@ -172,12 +172,12 @@ try {
 
     Write-Information "Retrieved [$($employees.Count)] persons"
 
-    $groupedEmployees = $employees | Group-Object -Property EmpNum
+    $groupedEmployees = $employees | Group-Object -Property empNum
 
     # Extract shifts from the response
     $actionMessage = "extracting shifts from shift data"
 
-    $shifts = $response.XML.shifts.shift | ForEach-Object {        
+    $shifts = $response.XML.shifts.shift | ForEach-Object {      
         [PSCustomObject]@{
             RseId       = $_.rse_id
             DptId       = $_.dptId
@@ -205,51 +205,59 @@ try {
     $exportedPersons = 0
 
     foreach ($employee in $groupedEmployees) {
-        # Get the shifts for the current employee
-        $actionMessage = "retrieving shifts for employee $($employee.Group.EmpNum) with RSE ID: $($employee.Group.RseId)"
-
-        $employeeShifts = $shifts | Where-Object { $_.RseId -eq $employee.Group.RseId }
-        
+        # get the unique data on employee, in case of multiple employments the employee data is grouped
+        $person = $employee.Group | Select-Object -First 1
         $contracts = [System.Collections.Generic.List[object]]::new()
-        # Create a contract for each shift
-        foreach ($shift in $employeeShifts) {            
-            $ShiftContract = @{
-                externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
-                dptId          = $shift.DptId
-                dptCode        = $shift.DptCode
-                dptName        = $shift.DptName
-                dptCcrId       = $shift.DptCcrId
-                dptCcrCode     = $shift.DptCcrCode
-                dptCcrIdName   = $shift.DptCcrName
-                shtId          = $shift.ShtId
-                shtName        = $shift.ShtName
-                sklShift       = $shift.SklShift
-                sklShiftId     = $shift.SklShiftId
-                sklLvlShift    = $shift.SklLvlShift
-                employment     = $employee.Group.EmpCon
-                functionId     = $employee.Group.PosEmpId      
-                functionCode   = $employee.Group.PosEmpCode  
-                functionName   = $employee.Group.PosEmpName
-                # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
-                # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
-                # to determine the start/end date, resulting in the contract marked as 'active'
-                startAt        = $shift.ShtFrom
-                endAt          = $shift.ShtUntil                
-            }
-            $contracts.Add($ShiftContract)
-        }
+        # process each entry separately because the shifts are linked to each employee (employment) separately in the response
+        # in case of multiple employments, the same employee can have different shifts linked to each employment. 
+        # Therefore, we need to process each employment separately to link the correct shifts to the correct employment in HelloID
+        # If there is only one employment, the loop will run once and link the shifts to that employment, so it works for both single and multiple employments.
+        foreach ($item in $employee.Group) {    
+            # Get the shifts for the current employee
+            $actionMessage = "retrieving shifts for employee $($item.EmpNum) with $($item.EmpCon) with RSE ID: $($item.RseId)"
 
+            $employeeShifts = $shifts | Where-Object { $_.RseId -eq $item.RseId }
+            
+            # Create a contract for each shift
+            foreach ($shift in $employeeShifts) {            
+                $ShiftContract = @{
+                    externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
+                    dptId          = $shift.DptId
+                    dptCode        = $shift.DptCode
+                    dptName        = $shift.DptName
+                    dptCcrId       = $shift.DptCcrId
+                    dptCcrCode     = $shift.DptCcrCode
+                    dptCcrIdName   = $shift.DptCcrName
+                    shtId          = $shift.ShtId
+                    shtName        = $shift.ShtName
+                    sklShift       = $shift.SklShift
+                    sklShiftId     = $shift.SklShiftId
+                    sklLvlShift    = $shift.SklLvlShift
+                    employment     = $item.EmpCon
+                    functionId     = $item.PosEmpId      
+                    functionCode   = $item.PosEmpCode  
+                    functionName   = $item.PosEmpName
+                    # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
+                    # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
+                    # to determine the start/end date, resulting in the contract marked as 'active'
+                    startAt        = $shift.ShtFrom
+                    endAt          = $shift.ShtUntil                
+                }
+                $contracts.Add($ShiftContract)
+            }
+        }
+        
         # Only output the person object if there are contracts
         if ($contracts.Count -gt 0) {
             $personObj = [PSCustomObject]@{
-                ExternalId   = $employee.Group.EmpNum
-                DisplayName = "$($employee.Group.EmpFirstname) $($employee.Group.EmpSurname) ($($employee.Group.EmpNum))".Trim()
-                FirstName    = $employee.Group.EmpFirstname
-                LastName    = $employee.Group.EmpSurname
-                Email        = $employee.Group.EmpEmail
-                function     = $employee.Group.PosEmpName
-                functionCode = $employee.Group.PosEmpCode
-                functionId   = $employee.Group.PosEmpId
+                ExternalId   = $person.EmpNum
+                DisplayName  = "$($person.EmpFirstname) $($person.EmpSurname) ($($person.EmpNum))".Trim()
+                FirstName    = $person.EmpFirstname
+                LastName     = $person.EmpSurname
+                Email        = $person.EmpEmail
+                function     = $person.PosEmpName
+                functionCode = $person.PosEmpCode
+                functionId   = $person.PosEmpId
                 Employment   = $employee.Group.EmpCon -join ','
                 Contracts    = $contracts
             }
@@ -260,7 +268,6 @@ try {
             $exportedPersons++
         }
     }
-
     Write-Information "Exported [$exportedPersons] unique persons"
 }
 catch {
