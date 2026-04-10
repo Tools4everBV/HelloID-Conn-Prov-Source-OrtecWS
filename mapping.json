@@ -17,9 +17,41 @@
       }
     },
     {
+      "name": "Contact.Business.Phone.Mobile",
+      "mode": "field",
+      "value": "PhoneWork",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Contact.Personal.Email",
+      "mode": "field",
+      "value": "EmailPrivate",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Contact.Personal.Phone.Mobile",
+      "mode": "field",
+      "value": "PhonePrivate",
+      "validation": {
+        "required": false
+      }
+    },
+    {
       "name": "ExternalId",
       "mode": "field",
       "value": "ExternalId",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Name.Convention",
+      "mode": "fixed",
+      "value": "B",
       "validation": {
         "required": false
       }
@@ -30,6 +62,30 @@
       "value": "LastName",
       "validation": {
         "required": true
+      }
+    },
+    {
+      "name": "Name.FamilyNamePrefix",
+      "mode": "field",
+      "value": "Prefix",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Name.GivenName",
+      "mode": "field",
+      "value": "FirstName",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Name.Initials",
+      "mode": "complex",
+      "value": "function GetInitials(){   \r\n    let initials = \"\"; \r\n    if (typeof source.FirstName !== 'undefined' && source.FirstName) {\r\n        initials = source.FirstName.substring(0,1);\r\n    }\r\n    return initials;\r\n}\r\nGetInitials();",
+      "validation": {
+        "required": false
       }
     },
     {
@@ -75,6 +131,60 @@
       }
     },
     {
+      "name": "Custom.ContractEind",
+      "mode": "complex",
+      "value": "function convertDateToString(date) {\r\n    let day = date.getDate();\r\n    day = day < 10 ? \"0\" + day : day;\r\n    let month = date.getMonth() + 1;\r\n    month = month < 10 ? \"0\" + month : month;\r\n    let year = date.getFullYear();\r\n    return day + \"-\" + month + \"-\" + year;\r\n}\r\n\r\nfunction formattedEndDate() {\r\n    let endDate = sourceContract.endAt;\r\n    let retVal = '';    \r\n    if (typeof endDate !== 'undefined' && endDate) {\r\n        const date = new Date(endDate);\r\n        retVal = convertDateToString(date);\r\n    } \r\n    if (retVal == \"31-12-9999\") {\r\n        retVal = '';\r\n    }\r\n\r\n    return retVal;\r\n}\r\n\r\nformattedEndDate();",
+      "validation": {
+        "required": false
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Custom.ContractStart",
+      "mode": "complex",
+      "value": "function convertDateToString(date) {\r\n    let day = date.getDate();\r\n    day = day < 10 ? \"0\" + day : day;\r\n    let month = date.getMonth() + 1;\r\n    month = month < 10 ? \"0\" + month : month;\r\n    let year = date.getFullYear();\r\n    return day + \"-\" + month + \"-\" + year;\r\n}\r\n\r\nfunction formattedStartDate() {\r\n    let startDate = sourceContract.startAt;\r\n    let retVal = '';\r\n    if (typeof startDate !== 'undefined' && startDate) {\r\n        const date = new Date(startDate);\r\n        retVal = convertDateToString(date);\r\n    } \r\n    return retVal;\r\n}\r\n\r\nformattedStartDate();",
+      "validation": {
+        "required": false
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Custom.NedapOnsIdentificationNo",
+      "mode": "complex",
+      "value": "function getValue() {\r\n    let nedapOnsIdentificationNo = null;\r\n    \r\n    if (sourceContract.employment) {\r\n        nedapOnsIdentificationNo = source.ExternalId + \"-\" + sourceContract.employment;\r\n    }\r\n    else {\r\n        nedapOnsIdentificationNo = source.ExternalId + \"-1\";\r\n    }\r\n    return nedapOnsIdentificationNo;\r\n}\r\n\r\ngetValue();",
+      "validation": {
+        "required": false
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Custom.ParentDepartmentCode",
+      "mode": "field",
+      "value": "prntDptCode",
+      "validation": {
+        "required": false
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Custom.ParentDepartmentId",
+      "mode": "field",
+      "value": "prntDptId",
+      "validation": {
+        "required": false
+      },
+      "convertToString": true
+    },
+    {
+      "name": "Custom.Primary",
+      "mode": "fixed",
+      "value": "0",
+      "validation": {
+        "required": false
+      },
+      "convertToString": true
+    },
+    {
       "name": "Department.DisplayName",
       "mode": "field",
       "value": "dptName",
@@ -88,6 +198,22 @@
       "value": "dptCode",
       "validation": {
         "required": true
+      }
+    },
+    {
+      "name": "Division.Code",
+      "mode": "field",
+      "value": "dptCode",
+      "validation": {
+        "required": false
+      }
+    },
+    {
+      "name": "Division.Name",
+      "mode": "field",
+      "value": "dptCode",
+      "validation": {
+        "required": false
       }
     },
     {
