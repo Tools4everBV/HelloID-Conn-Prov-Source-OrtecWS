@@ -219,7 +219,7 @@ try {
 
             $employeeShifts = $shifts | Where-Object { $_.RseId -eq $item.RseId }
             
-            # Create a contract for each shift
+            # Create a contract for each shift and each position of the employee
             foreach ($shift in $employeeShifts) {
                 For ($i = 0; $i -lt $item.PosEmpId.Count; $i++) {
                     $ShiftContract = @{
@@ -272,12 +272,10 @@ try {
                 Contracts    = $contracts
             }
 
-            if (-not($person.EmpNum.StartsWith('E'))) {
-                Write-Output ($personObj | ConvertTo-Json -Depth 20)
-
-                # Updated counter to keep track of actual exported person objects
-                $exportedPersons++
-            }
+            Write-Output ($personObj | ConvertTo-Json -Depth 20)
+            
+            # Updated counter to keep track of actual exported person objects
+            $exportedPersons++            
         }
     }
 
