@@ -158,7 +158,7 @@
       "convertToString": true
     },
     {
-      "name": "Custom.ParentDepartmentCode",
+      "name": "Team.ExternalId",
       "mode": "field",
       "value": "prntDptCode",
       "validation": {
@@ -167,9 +167,9 @@
       "convertToString": true
     },
     {
-      "name": "Custom.ParentDepartmentId",
+      "name": "Team.Name",
       "mode": "field",
-      "value": "prntDptId",
+      "value": "prntDptCode",
       "validation": {
         "required": false
       },
