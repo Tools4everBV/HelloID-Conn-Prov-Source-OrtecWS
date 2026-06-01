@@ -1,7 +1,7 @@
 ########################################################################
 # HelloID-Conn-Prov-Source-OrtecWS-Persons
 #
-# Version: 1.0.3
+# Version: 1.0.4
 ########################################################################
 
 # Initialize default values
@@ -106,9 +106,9 @@ try {
 
     $xmlRequest = @"
 <?xml version="1.0" encoding="utf-8"?>
-    <soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
-        xmlns:cais="http://www.ortec.com/CAIS"
-        xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
+               xmlns:cais="http://www.ortec.com/CAIS"
+               xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
     <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
         <wsa:Action>http://www.ortec.com/CAIS/IApplicationIntegrationService/SendMessage</wsa:Action>
         <wsa:ReplyTo>
@@ -156,17 +156,21 @@ try {
     # Extract employees from the response
     $actionMessage = "extracting employees from employee data"
 
-    $employees = $response.XML.employees.employee | ForEach-Object {         
+    $employees = $response.XML.employees.employee | ForEach-Object {          
         [PSCustomObject]@{
-            RseId        = $_.rse_id
-            EmpNum       = $_.empNum
-            EmpCon       = $_.empCon
-            EmpSurname   = $_.empSurname
-            EmpFirstname = $_.empFirstname
-            EmpEmail     = $_.empEmail
-            PosEmpName   = $_.empPositions.empPosition.posEmpName
-            PosEmpCode   = $_.empPositions.empPosition.posEmpCode
-            PosEmpId     = $_.empPositions.empPosition.posEmpId
+            RseId           = $_.rse_id
+            EmpNum          = $_.empNum
+            EmpCon          = $_.empCon
+            EmpSurname      = $_.empSurname
+            EmpFirstname    = $_.empFirstname
+            EmpPrefix       = $_.empPrefix
+            EmpEmail        = $_.empEmail
+            EmpEmailPrivate = $_.empEmailPrivate
+            EmpPhoneWork    = $_.EmpPhoneWork
+            EmpPhonePrivate = $_.empPhonePrivate
+            PosEmpName      = $_.empPositions.empPosition.posEmpName
+            PosEmpCode      = $_.empPositions.empPosition.posEmpCode
+            PosEmpId        = $_.empPositions.empPosition.posEmpId
         }
     }
 
@@ -177,12 +181,14 @@ try {
     # Extract shifts from the response
     $actionMessage = "extracting shifts from shift data"
 
-    $shifts = $response.XML.shifts.shift | ForEach-Object {      
-        [PSCustomObject]@{
+    $shifts = $response.XML.shifts.shift | ForEach-Object {             
+        [PSCustomObject]@{            
             RseId       = $_.rse_id
             DptId       = $_.dptId
             DptCode     = $_.dptCode
             DptName     = $_.dptName
+            PrntDptId   = $_.parentDptId
+            PrntDptCode = $_.parentDptCode
             DptCcrId    = $_.DptCcrId
             DptCcrCode  = $_.DptCcrCode
             DptCcrName  = $_.DptCcrName
@@ -205,45 +211,77 @@ try {
     $exportedPersons = 0
 
     foreach ($employee in $groupedEmployees) {
-        # get the unique data on employee, in case of multiple employments the employee data is grouped
         $person = $employee.Group | Select-Object -First 1
         $contracts = [System.Collections.Generic.List[object]]::new()
-        # process each entry separately because the shifts are linked to each employee (employment) separately in the response
-        # in case of multiple employments, the same employee can have different shifts linked to each employment. 
-        # Therefore, we need to process each employment separately to link the correct shifts to the correct employment in HelloID
-        # If there is only one employment, the loop will run once and link the shifts to that employment, so it works for both single and multiple employments.
         foreach ($item in $employee.Group) {    
             # Get the shifts for the current employee
             $actionMessage = "retrieving shifts for employee $($item.EmpNum) with $($item.EmpCon) with RSE ID: $($item.RseId)"
 
             $employeeShifts = $shifts | Where-Object { $_.RseId -eq $item.RseId }
             
-            # Create a contract for each shift
-            foreach ($shift in $employeeShifts) {            
-                $ShiftContract = @{
-                    externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
-                    dptId          = $shift.DptId
-                    dptCode        = $shift.DptCode
-                    dptName        = $shift.DptName
-                    dptCcrId       = $shift.DptCcrId
-                    dptCcrCode     = $shift.DptCcrCode
-                    dptCcrIdName   = $shift.DptCcrName
-                    shtId          = $shift.ShtId
-                    shtName        = $shift.ShtName
-                    sklShift       = $shift.SklShift
-                    sklShiftId     = $shift.SklShiftId
-                    sklLvlShift    = $shift.SklLvlShift
-                    employment     = $item.EmpCon
-                    functionId     = $item.PosEmpId      
-                    functionCode   = $item.PosEmpCode  
-                    functionName   = $item.PosEmpName
-                    # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
-                    # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
-                    # to determine the start/end date, resulting in the contract marked as 'active'
-                    startAt        = $shift.ShtFrom
-                    endAt          = $shift.ShtUntil                
+            # Create a contract for each shift and each position of the employee
+            foreach ($shift in $employeeShifts) {
+                For ($i = 0; $i -lt $item.PosEmpId.Count; $i++) {
+                    if ($item.PosEmpId.Count -gt 1 ) {
+                        # if there are multiple titles, then PosEmpId is an array
+                        $ShiftContract = @{
+                            #externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
+                            externalId   = "$($shift.ShtId)_$($item.PosEmpId[$i])_$($shift.SklShiftId)"
+                            dptId        = $shift.DptId
+                            dptCode      = $shift.DptCode
+                            dptName      = $shift.DptName
+                            prntDptId    = $shift.PrntDptId
+                            prntDptCode  = $shift.PrntDptCode
+                            dptCcrId     = $shift.DptCcrId
+                            dptCcrCode   = $shift.DptCcrCode
+                            dptCcrIdName = $shift.DptCcrName                    
+                            shtId        = $shift.ShtId
+                            shtName      = $shift.ShtName
+                            sklShift     = $shift.SklShift
+                            sklShiftId   = $shift.SklShiftId
+                            sklLvlShift  = $shift.SklLvlShift
+                            employment   = $item.EmpCon
+                            functionId   = $item.PosEmpId[$i]      
+                            functionCode = $item.PosEmpCode[$i]        
+                            functionName = $item.PosEmpName[$i]      
+                            # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
+                            # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
+                            # to determine the start/end date, resulting in the contract marked as 'active'
+                            startAt      = $shift.ShtFrom
+                            endAt        = $shift.ShtUntil                
+                        }
+                    }
+                    else {
+                        # if there is only one title, then PosEmpId is not an array, but a string
+                        $ShiftContract = @{
+                            #externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
+                            externalId   = "$($shift.ShtId)_$($item.PosEmpId)_$($shift.SklShiftId)"
+                            dptId        = $shift.DptId
+                            dptCode      = $shift.DptCode
+                            dptName      = $shift.DptName
+                            prntDptId    = $shift.PrntDptId
+                            prntDptCode  = $shift.PrntDptCode
+                            dptCcrId     = $shift.DptCcrId
+                            dptCcrCode   = $shift.DptCcrCode
+                            dptCcrIdName = $shift.DptCcrName                    
+                            shtId        = $shift.ShtId
+                            shtName      = $shift.ShtName
+                            sklShift     = $shift.SklShift
+                            sklShiftId   = $shift.SklShiftId
+                            sklLvlShift  = $shift.SklLvlShift
+                            employment   = $item.EmpCon
+                            functionId   = $item.PosEmpId     
+                            functionCode = $item.PosEmpCode        
+                            functionName = $item.PosEmpName     
+                            # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
+                            # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
+                            # to determine the start/end date, resulting in the contract marked as 'active'
+                            startAt      = $shift.ShtFrom
+                            endAt        = $shift.ShtUntil                
+                        }
+                    }
+                    $contracts.Add($ShiftContract)
                 }
-                $contracts.Add($ShiftContract)
             }
         }
         
@@ -254,7 +292,11 @@ try {
                 DisplayName  = "$($person.EmpFirstname) $($person.EmpSurname) ($($person.EmpNum))".Trim()
                 FirstName    = $person.EmpFirstname
                 LastName     = $person.EmpSurname
+                Prefix       = $person.EmpPrefix                
                 Email        = $person.EmpEmail
+                EmailPrivate = $person.EmpEmailPrivate
+                PhoneWork    = $person.EmpPhoneWork
+                PhonePrivate = $person.EmpPhonePrivate
                 function     = $person.PosEmpName
                 functionCode = $person.PosEmpCode
                 functionId   = $person.PosEmpId
@@ -263,11 +305,12 @@ try {
             }
 
             Write-Output ($personObj | ConvertTo-Json -Depth 20)
-
+            
             # Updated counter to keep track of actual exported person objects
-            $exportedPersons++
+            $exportedPersons++            
         }
     }
+
     Write-Information "Exported [$exportedPersons] unique persons"
 }
 catch {
