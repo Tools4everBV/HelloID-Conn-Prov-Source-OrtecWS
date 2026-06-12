@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
+## [1.0.5] - 12-05-2026
+
+#### Changed
+- mapping.json:
+  - Removed custom fields which prevent sourceconnector import when fields are not available
+
 ## [1.0.4] - 23-04-2026
 
 #### Changed
