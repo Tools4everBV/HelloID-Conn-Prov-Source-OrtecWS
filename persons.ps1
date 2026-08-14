@@ -218,15 +218,14 @@ try {
             $actionMessage = "retrieving shifts for employee $($item.EmpNum) with $($item.EmpCon) with RSE ID: $($item.RseId)"
 
             $employeeShifts = $shifts | Where-Object { $_.RseId -eq $item.RseId }
-            
+
             # Create a contract for each shift and each position of the employee
             foreach ($shift in $employeeShifts) {
                 For ($i = 0; $i -lt $item.PosEmpId.Count; $i++) {
                     if ($item.PosEmpId.Count -gt 1 ) {
                         # if there are multiple titles, then PosEmpId is an array
                         $ShiftContract = @{
-                            #externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
-                            externalId   = "$($shift.ShtId)_$($item.PosEmpId[$i])_$($shift.SklShiftId)"
+                            externalId   = "$($shift.ShtId)_$($item.PosEmpId[$i])_$($shift.SklShiftId)_$($shift.SklLvlShift)"
                             dptId        = $shift.DptId
                             dptCode      = $shift.DptCode
                             dptName      = $shift.DptName
@@ -234,28 +233,27 @@ try {
                             prntDptCode  = $shift.PrntDptCode
                             dptCcrId     = $shift.DptCcrId
                             dptCcrCode   = $shift.DptCcrCode
-                            dptCcrIdName = $shift.DptCcrName                    
+                            dptCcrIdName = $shift.DptCcrName
                             shtId        = $shift.ShtId
                             shtName      = $shift.ShtName
                             sklShift     = $shift.SklShift
                             sklShiftId   = $shift.SklShiftId
                             sklLvlShift  = $shift.SklLvlShift
                             employment   = $item.EmpCon
-                            functionId   = $item.PosEmpId[$i]      
-                            functionCode = $item.PosEmpCode[$i]        
-                            functionName = $item.PosEmpName[$i]      
+                            functionId   = $item.PosEmpId[$i]
+                            functionCode = $item.PosEmpCode[$i]
+                            functionName = $item.PosEmpName[$i]
                             # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
                             # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
                             # to determine the start/end date, resulting in the contract marked as 'active'
                             startAt      = $shift.ShtFrom
-                            endAt        = $shift.ShtUntil                
+                            endAt        = $shift.ShtUntil
                         }
                     }
                     else {
                         # if there is only one title, then PosEmpId is not an array, but a string
                         $ShiftContract = @{
-                            #externalId     = "$($shift.ShtId)_$($shift.SklShiftId)"
-                            externalId   = "$($shift.ShtId)_$($item.PosEmpId)_$($shift.SklShiftId)"
+                            externalId   = "$($shift.ShtId)_$($item.PosEmpId)_$($shift.SklShiftId)_$($shift.SklLvlShift)"
                             dptId        = $shift.DptId
                             dptCode      = $shift.DptCode
                             dptName      = $shift.DptName
@@ -263,28 +261,28 @@ try {
                             prntDptCode  = $shift.PrntDptCode
                             dptCcrId     = $shift.DptCcrId
                             dptCcrCode   = $shift.DptCcrCode
-                            dptCcrIdName = $shift.DptCcrName                    
+                            dptCcrIdName = $shift.DptCcrName
                             shtId        = $shift.ShtId
                             shtName      = $shift.ShtName
                             sklShift     = $shift.SklShift
                             sklShiftId   = $shift.SklShiftId
                             sklLvlShift  = $shift.SklLvlShift
                             employment   = $item.EmpCon
-                            functionId   = $item.PosEmpId     
-                            functionCode = $item.PosEmpCode        
-                            functionName = $item.PosEmpName     
+                            functionId   = $item.PosEmpId
+                            functionCode = $item.PosEmpCode
+                            functionName = $item.PosEmpName
                             # Add the same fields as for shift. Otherwise, the HelloID mapping will fail
                             # The value of both the 'startAt' and 'endAt' cannot be null. If empty, HelloID is unable
                             # to determine the start/end date, resulting in the contract marked as 'active'
                             startAt      = $shift.ShtFrom
-                            endAt        = $shift.ShtUntil                
+                            endAt        = $shift.ShtUntil
                         }
                     }
                     $contracts.Add($ShiftContract)
                 }
             }
         }
-        
+
         # Only output the person object if there are contracts
         if ($contracts.Count -gt 0) {
             $personObj = [PSCustomObject]@{

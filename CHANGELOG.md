@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
+## [1.0.6] - 14-08-2026
+
+#### Changed
+
+- persons.ps1: Added the shift skill level to contract external IDs to prevent duplicate IDs when a person is planned on multiple shifts with different skill levels.
+
 ## [1.0.5] - 12-05-2026
 
 #### Changed
