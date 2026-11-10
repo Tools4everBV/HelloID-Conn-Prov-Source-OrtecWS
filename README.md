@@ -46,6 +46,10 @@ _HelloID-Conn-Prov-Source-OrtecWS_ is a _source_ connector. It imports _employee
   - `FutureDays`: The number of days in the future from which shifts should be imported.
     - The Ortec API supports a maximum of **7 future days**. Contact Ortec if you require a larger window.
 
+- **Decide how to handle shifts without a function**
+  - Shifts can be scheduled for employees who have no function (position) in Ortec. By default, these shifts are imported as contracts with empty function fields.
+  - Enable the `ExcludeShiftsWithoutFunction` setting if these shifts should not be imported.
+
 - **Ensure Aggregation Values Match Between Sources**
   - The OrtecWS source connector is not a full source. Its purpose is to **aggregate to the existing HR source** with employee shift data. This happens through **aggregation based on the `ExternalId`** of the primary source. Make sure the **aggregation value in the primary source matches the aggregation value in OrtecWS**, otherwise shift data won’t link correctly to the person.
 
@@ -59,15 +63,16 @@ _HelloID-Conn-Prov-Source-OrtecWS_ is a _source_ connector. It imports _employee
 
 ### Connection settings
 
-| Setting        | Description                                                                                                          | Mandatory |
-| -------------- | -------------------------------------------------------------------------------------------------------------------- | --------- |
-| BaseUrl        | The base URL of the OrtecWS API. <br>_e.g., `https://t4e-weu-soapsvc1-p.ortec-hosting.com`_                          | Yes       |
-| ServerName     | The server name used in the SOAP endpoint path. <br>_e.g., `T4E_WEU_OWS_P`_                                          | Yes       |
-| ApiKey         | The pre-shared key (PSK) for authenticating SOAP requests.                                                           | Yes       |
-| ApiUsername    | The username for authenticating with the API. <br>_e.g., `ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P`_                      | No        |
-| ApiPassword    | The password associated with the API username.                                                                       | No        |
-| HistoricalDays | Number of days in the past to include when fetching employments (e.g. 2 = current date minus 2 days). Max = 2 days.  | Yes       |
-| FutureDays     | Number of days in the future to include when fetching employments (e.g. 7 = current date plus 7 days). Max = 7 days. | Yes       |
+| Setting                      | Description                                                                                                                          | Mandatory |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| BaseUrl                      | The base URL of the OrtecWS API. <br>_e.g., `https://t4e-weu-soapsvc1-p.ortec-hosting.com`_                                          | Yes       |
+| ServerName                   | The server name used in the SOAP endpoint path. <br>_e.g., `T4E_WEU_OWS_P`_                                                          | Yes       |
+| ApiKey                       | The pre-shared key (PSK) for authenticating SOAP requests.                                                                           | Yes       |
+| ApiUsername                  | The username for authenticating with the API. <br>_e.g., `ORTEC-HOSTING\\T4E_WEU_OWS_WebS01_P`_                                      | No        |
+| ApiPassword                  | The password associated with the API username.                                                                                       | No        |
+| HistoricalDays               | Number of days in the past to include when fetching employments (e.g. 2 = current date minus 2 days). Max = 2 days.                  | Yes       |
+| FutureDays                   | Number of days in the future to include when fetching employments (e.g. 7 = current date plus 7 days). Max = 7 days.                 | Yes       |
+| ExcludeShiftsWithoutFunction | When enabled, shifts of employees without a function (position) are not imported as contracts. Default: disabled (shifts are imported). | No        |
 
 ## Remarks
 
@@ -100,6 +105,8 @@ When calling the OrtecWS API:
   From _today minus `HistoricalDays`_ to _today plus `FutureDays`_.
 - If an employee is assigned to multiple employments, they will appear more than once in the result. The connector consolidates these entries.
 - All employments for the same person are stored in a single string, separated by commas.
+- A contract is created for each shift and each function (position) of the employee. The `externalId` of a contract is built as `{ShtId}_{PosEmpId}_{SklShiftId}_{SklLvlShift}`.
+- If an employee has no function, one contract is created per shift with empty function fields (`functionId`, `functionCode`, `functionName`). These shifts are skipped when `ExcludeShiftsWithoutFunction` is enabled.
 
 ## Development resources
 

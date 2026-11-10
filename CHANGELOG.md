@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
+## [1.0.7] - 10-11-2026
+
+#### Added
+
+- configuration.json: Added the `ExcludeShiftsWithoutFunction` setting to exclude shifts of employees without a function.
+
+#### Changed
+
+- persons.ps1: Shifts of employees without a function are now imported as contracts with empty function fields, unless `ExcludeShiftsWithoutFunction` is enabled.
+
 ## [1.0.6] - 14-08-2026
 
 #### Changed
